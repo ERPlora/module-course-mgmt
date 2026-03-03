@@ -33,3 +33,20 @@ PERMISSIONS = [
 'course_mgmt.change_classsession',
 'course_mgmt.manage_settings',
 ]
+
+ROLE_PERMISSIONS = {
+    "admin": ["*"],
+    "manager": [
+        "add_classsession",
+        "add_course",
+        "change_classsession",
+        "change_course",
+        "view_classsession",
+        "view_course",
+    ],
+    "employee": [
+        "add_course",
+        "view_classsession",
+        "view_course",
+    ],
+}
