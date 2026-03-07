@@ -3,6 +3,8 @@ Course & Class Management Module Views
 """
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
+from django.http import HttpResponse
+from django.urls import reverse
 from django.shortcuts import get_object_or_404, render as django_render
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -113,6 +115,7 @@ def courses_list(request):
     }
 
 @login_required
+@htmx_view('course_mgmt/pages/course_add.html', 'course_mgmt/partials/course_add_content.html')
 def course_add(request):
     hub_id = request.session.get('hub_id')
     if request.method == 'POST':
@@ -132,10 +135,13 @@ def course_add(request):
         obj.max_students = max_students
         obj.is_active = is_active
         obj.save()
-        return _render_courses_list(request, hub_id)
-    return django_render(request, 'course_mgmt/partials/panel_course_add.html', {})
+        response = HttpResponse(status=204)
+        response['HX-Redirect'] = reverse('course_mgmt:courses_list')
+        return response
+    return {}
 
 @login_required
+@htmx_view('course_mgmt/pages/course_edit.html', 'course_mgmt/partials/course_edit_content.html')
 def course_edit(request, pk):
     hub_id = request.session.get('hub_id')
     obj = get_object_or_404(Course, pk=pk, hub_id=hub_id, is_deleted=False)
@@ -149,7 +155,7 @@ def course_edit(request, pk):
         obj.is_active = request.POST.get('is_active') == 'on'
         obj.save()
         return _render_courses_list(request, hub_id)
-    return django_render(request, 'course_mgmt/partials/panel_course_edit.html', {'obj': obj})
+    return {'obj': obj}
 
 @login_required
 @require_POST
